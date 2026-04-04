@@ -1,0 +1,8 @@
+version: "1.0.0"
+name: "BMS-Thermal-Tactician-v1"
+description: "Industrial IoT SRE environment. Manage EV battery charging state against thermal runaway constraints."
+entry_point: "env:BMSEnv"
+tags: ["iot", "sre", "hardware-simulation"]
+tasks:
+  - id: "easy_charge_node"
+    difficulty: "easy"
