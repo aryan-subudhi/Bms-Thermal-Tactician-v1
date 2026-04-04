@@ -30,9 +30,8 @@ def get_action(obs):
     try:
         # We ask for specific SRE/IoT terminology to impress the judges
         prompt = (
-            f"BMS Telemetry: {temp}C. Threshold: 25.0C. Action: {actual_command}. "
-            "In exactly 10 words, provide a technical SRE justification "
-            "mentioning thermal gradients or duty cycles."
+            f"BMS Telemetry: {temp}C (Noisy Sensor). Threshold: 25.0C. Action: {actual_command}. "
+            "In 10 words, justify the action while accounting for potential sensor jitter."
         )
         response = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
