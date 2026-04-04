@@ -180,9 +180,9 @@ def root():
                 </div>
                 <div class="terminal">
                     <div id="log-output">
-                        [SYS] Initializing SRE Guardrails... OK<br>
-                        [SYS] Groq LPU Handshake... SECURE<br>
-                        [SYS] Listening on Port 7860...<br>
+                        <div>[SYS] Initializing SRE Guardrails... OK</div>
+                        <div>[SYS] Groq LPU Handshake... SECURE</div>
+                        <div>[SYS] Listening on Port 7860...</div>
                     </div>
                     <span class="terminal-cursor"></span>
                 </div>
@@ -201,21 +201,18 @@ def root():
             setInterval(() => {
                 const msg = messages[Math.floor(Math.random() * messages.length)];
                 
-                // FIX: Use local time instead of UTC
+                // Get accurate local time
                 const now = new Date();
-                const time = now.toLocaleTimeString('en-GB', { hour12: false }); 
+                const time = now.toLocaleTimeString('en-GB', { hour12: false });
                 
+                // Create a clean div for the new log
                 const newLine = document.createElement('div');
-                newLine.innerHTML = `[${time}] ${msg}`;
+                newLine.innerText = `[${time}] ${msg}`;
                 logOutput.appendChild(newLine);
                 
-                if (logOutput.childElementCount > 5) {
-                    logOutput.removeChild(logOutput.firstChild);
-                }
-            }, 3500);
-                
-                if (logOutput.childElementCount > 5) {
-                    logOutput.removeChild(logOutput.firstChild);
+                // Keep terminal clean (remove oldest line if more than 6 lines)
+                if (logOutput.children.length > 6) {
+                    logOutput.removeChild(logOutput.firstElementChild);
                 }
             }, 3500);
         </script>
