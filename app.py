@@ -200,10 +200,19 @@ def root():
             
             setInterval(() => {
                 const msg = messages[Math.floor(Math.random() * messages.length)];
-                const time = new Date().toISOString().split('T')[1].slice(0,8);
+                
+                // FIX: Use local time instead of UTC
+                const now = new Date();
+                const time = now.toLocaleTimeString('en-GB', { hour12: false }); 
+                
                 const newLine = document.createElement('div');
                 newLine.innerHTML = `[${time}] ${msg}`;
                 logOutput.appendChild(newLine);
+                
+                if (logOutput.childElementCount > 5) {
+                    logOutput.removeChild(logOutput.firstChild);
+                }
+            }, 3500);
                 
                 if (logOutput.childElementCount > 5) {
                     logOutput.removeChild(logOutput.firstChild);
