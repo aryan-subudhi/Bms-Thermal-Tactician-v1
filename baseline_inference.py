@@ -2,7 +2,7 @@ import os
 import requests
 from groq import Groq
 
-# 1. Setup Groq Client
+# Setup Groq Client
 client = Groq()
 MODEL_ID = "llama-3.1-8b-instant" 
 BASE_URL = "http://127.0.0.1:7860"
@@ -11,23 +11,21 @@ def get_action(obs):
     """
     Hybrid Controller: 
     - Python handles the safety-critical math (Deterministic).
-    - Groq handles the reasoning/logging (AI-Powered).
+    - Groq handles the reasoning/logging (AI-Powered XAI).
     """
-    # FIX 1: Type Safety - ensure the temperature is always evaluated as a float
     try:
         temp = float(obs.get('battery_temp', 0))
     except (TypeError, ValueError):
         temp = 0.0
     
-    # --- HARD SAFETY GUARDRAIL (Python Math) ---
+    # --- HARD SAFETY GUARDRAIL ---
     if temp >= 25.0:
         actual_command = "FAN_ON"
     else:
         actual_command = "FAN_OFF"
 
-    # --- AI REASONING (Technical XAI Upgrade) ---
+    # --- TECHNICAL XAI REASONING ---
     try:
-        # We ask for specific SRE/IoT terminology to impress the judges
         prompt = (
             f"BMS Telemetry: {temp}C (Noisy Sensor). Threshold: 25.0C. Action: {actual_command}. "
             "In 10 words, justify the action while accounting for potential sensor jitter."
@@ -35,23 +33,21 @@ def get_action(obs):
         response = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
             model=MODEL_ID,
-            temperature=0.2, # Slight randomness for variety
+            temperature=0.2, 
         )
         reasoning = response.choices[0].message.content.strip()
         print(f"[BMS-SRE Insight]: {reasoning}")
     except Exception:
-        pass # If API fails, safety logic still carries the mission
+        pass # Safety logic carries the mission if API fails
 
     return actual_command
 
 def run_evaluation():
     print("--- Starting BMS Thermal Audit (Groq LPU + Hybrid Safety) ---")
     
-    # 2. Reset the Environment
     try:
         response = requests.post(f"{BASE_URL}/reset")
         result = response.json()
-        # Ensure we drill down into the observation dict if the server wraps it
         obs = result.get("observation", result) 
     except Exception as e:
         print(f"ERROR: Server not found at {BASE_URL}. Run uvicorn first!")
@@ -61,39 +57,33 @@ def run_evaluation():
     step_count = 0
     
     while not done:
-        # Get current state securely
         try:
             current_temp = float(obs.get('battery_temp', 0))
         except (TypeError, ValueError):
             current_temp = 0.0
 
-        # Get the safe action based on the CURRENT state
         action_cmd = get_action(obs)
-        
-        # FIX 2: Print the truth BEFORE we send the command to the server
         print(f"Step: {step_count} | State: {current_temp}C | Decision: {action_cmd}")
         
-        # 3. Step the Environment to get the NEXT state
         try:
             response = requests.post(f"{BASE_URL}/step", json={"cmd": action_cmd})
             result = response.json()
         except requests.exceptions.RequestException:
-            print("ERROR: Lost connection to Uvicorn server.")
+            print("ERROR: Lost connection to server.")
             break
         
-        # Parse the results for the NEXT iteration of the loop
         obs = result.get("observation", {})
         reward = result.get("reward", 0)
         done = result.get("done", False)
 
-        # --- NEW: EMERGENCY SHUTDOWN CHECK ---
+        # --- EMERGENCY SHUTDOWN CHECK ---
         if done and reward < 0:
             print(f"\n🚨 [SYSTEM KILLED] Emergency Shutdown Triggered! Final Reward: {reward}")
             print("--- SIMULATION TERMINATED TO PREVENT HARDWARE DAMAGE ---")
-            break  # Break out of the loop completely
+            break  
         
         step_count += 1
-        if step_count >= 20: # Safety break to prevent infinite loops
+        if step_count >= 20: 
             print("--- Max steps reached. Audit Complete. ---")
             break
 
