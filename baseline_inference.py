@@ -25,7 +25,6 @@ def get_action(obs):
     else:
         actual_command = "FAN_OFF"
 
-    # --- AI REASONING (For Hackathon Points) ---
     # --- AI REASONING (Technical XAI Upgrade) ---
     try:
         # We ask for specific SRE/IoT terminology to impress the judges
@@ -86,6 +85,12 @@ def run_evaluation():
         obs = result.get("observation", {})
         reward = result.get("reward", 0)
         done = result.get("done", False)
+
+        # --- NEW: EMERGENCY SHUTDOWN CHECK ---
+        if done and reward < 0:
+            print(f"\n🚨 [SYSTEM KILLED] Emergency Shutdown Triggered! Final Reward: {reward}")
+            print("--- SIMULATION TERMINATED TO PREVENT HARDWARE DAMAGE ---")
+            break  # Break out of the loop completely
         
         step_count += 1
         if step_count >= 20: # Safety break to prevent infinite loops
