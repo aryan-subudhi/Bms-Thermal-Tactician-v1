@@ -163,7 +163,7 @@ def root():
                     <h3>System Architecture</h3>
                     <ul>
                         <li><span class="feature-name">Core Engine</span> <span class="feature-val">FastAPI + Docker</span></li>
-                        <li><span class="feature-name">AI Logic</span> <span class="feature-val">Llama 3.1 8B (Groq)</span></li>
+                        <li><span class="feature-name">AI Logic</span> <span class="feature-val">OpenAI API (GPT)</span></li>
                         <li><span class="feature-name">Guardrails</span> <span class="feature-val">Deterministic Hybrid</span></li>
                         <li><span class="feature-name">Telemetry</span> <span class="feature-val">Jitter & Penalties</span></li>
                     </ul>
@@ -181,7 +181,7 @@ def root():
                 <div class="terminal">
                     <div id="log-output">
                         <div>[SYS] Initializing SRE Guardrails... OK</div>
-                        <div>[SYS] Groq LPU Handshake... SECURE</div>
+                        <div>[SYS] OpenAI Client Handshake... SECURE</div>
                         <div>[SYS] Listening on Port 7860...</div>
                     </div>
                     <span class="terminal-cursor"></span>
