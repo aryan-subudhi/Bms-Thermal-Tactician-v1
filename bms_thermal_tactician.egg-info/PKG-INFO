@@ -1,0 +1,21 @@
+Metadata-Version: 2.4
+Name: bms-thermal-tactician
+Version: 0.1.0
+Summary: Industrial IoT SRE environment for battery thermal auditing
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: openenv-core>=0.2.0
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: pydantic
+Requires-Dist: openai
+Requires-Dist: watchfiles
+
+---
+title: Bms Thermal Tactician V1
+emoji: 🚀
+colorFrom: red
+colorTo: gray
+sdk: docker
+pinned: false
+---
