@@ -242,6 +242,12 @@ def step(action: Action):
         
     return {"observation": obs.dict(), "reward": reward, "done": done, "info": info}
 
+def main():
+    """
+    OpenEnv Mandatory Entrypoint: 
+    Allows the validator to programmatically call the server.
+    """
+    uvicorn.run(app, host="0.0.0.0", port=7860)
+
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=7860, reload=True)
+    main()
