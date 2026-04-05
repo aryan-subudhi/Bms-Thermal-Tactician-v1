@@ -54,11 +54,13 @@ def run_evaluation() -> None:
     steps_taken = 0
     success = False
     error_msg = "null"
+    final_score = 0.0  # <--- ADD THIS LINE HERE
 
     print(f"[START] task={TASK_NAME} env={BENCHMARK} model={MODEL_NAME}", flush=True)
     
     try:
-        response = requests.post(f"{ENV_URL}/reset", timeout=10)
+        # Check if server is up
+        response = requests.post(f"{ENV_URL}/reset", timeout=5)
         result = response.json()
         obs = result.get("observation", result)
         
