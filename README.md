@@ -1,3 +1,12 @@
+---
+title: BMS Thermal Tactician V1
+emoji: 🔋
+colorFrom: blue
+colorTo: red
+sdk: docker
+app_file: server/app.py
+pinned: false
+---
 # BMS Thermal Tactician v1
 **A High-Fidelity Digital Twin Environment for EV Battery Thermal Management**
 
