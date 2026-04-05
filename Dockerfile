@@ -18,3 +18,7 @@ EXPOSE 7860
 
 # Command to run your server (pointing to your app file)
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
+
+COPY server/app.py /app/app.py
+# or if the Dockerfile is INSIDE the server folder:
+COPY app.py /app/app.py
