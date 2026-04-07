@@ -1,5 +1,6 @@
 import os
 import requests
+import time
 from openai import OpenAI
 from typing import Dict, Any, List
 
@@ -9,8 +10,14 @@ MODEL_NAME = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 ENV_URL = "http://127.0.0.1:7860"
-TASK_NAME = "thermal-anomaly-detection"
 BENCHMARK = "bms-thermal-tactician-v1"
+
+# Phase 2 Compliance: 3 distinct tasks aligned with openenv.yaml
+TASKS = [
+    "thermal-anomaly-detection",
+    "runaway-mitigation",
+    "sensor-fault-tolerance"
+]
 
 client = OpenAI(
     base_url=API_BASE_URL,
@@ -48,50 +55,59 @@ def get_action(obs: Dict[str, Any]) -> str:
 
 def run_evaluation() -> None:
     """
-    Standardized execution loop for OpenEnv Phase 1 validation.
+    Standardized multi-task execution loop for OpenEnv Phase 2 validation.
     """
-    rewards_history: List[float] = []
-    steps_taken = 0
-    success = False
-    error_msg = "null"
-    final_score = 0.0  # <--- ADD THIS LINE HERE
+    for task_name in TASKS:
+        rewards_history: List[float] = []
+        steps_taken = 0
+        success = False
+        error_msg = "null"
+        final_score = 0.01 
 
-    print(f"[START] task={TASK_NAME} env={BENCHMARK} model={MODEL_NAME}", flush=True)
-    
-    try:
-        # Check if server is up
-        response = requests.post(f"{ENV_URL}/reset", timeout=5)
-        result = response.json()
-        obs = result.get("observation", result)
+        print(f"[START] task={task_name} env={BENCHMARK} model={MODEL_NAME}", flush=True)
         
-        done = False
-        while not done and steps_taken < 20:
-            action_cmd = get_action(obs)
+        try:
+            # Initialize specific task per Phase 2 requirements
+            response = requests.post(f"{ENV_URL}/reset", json={"task": task_name}, timeout=5)
+            result = response.json()
+            obs = result.get("observation", result)
             
-            step_resp = requests.post(f"{ENV_URL}/step", json={"cmd": action_cmd}, timeout=10)
-            result = step_resp.json()
-            
-            obs = result.get("observation", {})
-            reward = float(result.get("reward", 0.0))
-            done = bool(result.get("done", False))
-            
-            rewards_history.append(reward)
-            
-            done_str = "true" if done else "false"
-            print(f"[STEP] step={steps_taken} action={action_cmd} reward={reward:.2f} done={done_str} error={error_msg}", flush=True)
-            
-            steps_taken += 1
+            done = False
+            while not done and steps_taken < 20:
+                action_cmd = get_action(obs)
+                
+                step_resp = requests.post(f"{ENV_URL}/step", json={"cmd": action_cmd}, timeout=10)
+                result = step_resp.json()
+                
+                obs = result.get("observation", {})
+                reward = float(result.get("reward", 0.0))
+                done = bool(result.get("done", False))
+                
+                rewards_history.append(reward)
+                
+                done_str = "true" if done else "false"
+                print(f"[STEP] step={steps_taken} action={action_cmd} reward={reward:.2f} done={done_str} error={error_msg}", flush=True)
+                
+                steps_taken += 1
 
-        final_score = sum(rewards_history) / steps_taken if steps_taken > 0 else 0.0
-        success = True if final_score >= 0.1 else False
+            raw_score = sum(rewards_history) / steps_taken if steps_taken > 0 else 0.0
+            
+            # Phase 2 Compliance: Normalize score to be strictly within (0, 1) bounds
+            final_score = 0.01 + (raw_score * 0.98)
+            success = True if raw_score >= 0.1 else False
 
-    except Exception as e:
-        error_msg = str(e).replace("\n", " ")
-    
-    finally:
-        success_str = "true" if success else "false"
-        rewards_str = ",".join([f"{r:.2f}" for r in rewards_history])
-        print(f"[END] success={success_str} steps={steps_taken} score={final_score:.3f} rewards={rewards_str}", flush=True)
+        except Exception as e:
+            error_msg = str(e).replace("\n", " ")
+            success = False
+            final_score = 0.01
+        
+        finally:
+            success_str = "true" if success else "false"
+            rewards_str = ",".join([f"{r:.2f}" for r in rewards_history]) if rewards_history else "0.00"
+            print(f"[END] success={success_str} steps={steps_taken} score={final_score:.3f} rewards={rewards_str}", flush=True)
+            
+            # Rate limit mitigation for local server
+            time.sleep(1)
 
 if __name__ == "__main__":
     run_evaluation()

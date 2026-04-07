@@ -1,8 +1,13 @@
-version: "1.0.0"
-name: "BMS-Thermal-Tactician-v1"
-description: "Industrial IoT SRE environment. Manage EV battery charging state against thermal runaway constraints."
+version: 1
+environment:
+  name: bms-thermal-tactician-v1
+  description: A Digital Twin for EV Battery Thermal Management
 entrypoint: server/app.py
 tags: ["iot", "sre", "hardware-simulation"]
 tasks:
-  - id: "easy_charge_node"
-    difficulty: "easy"
+  - id: thermal-anomaly-detection
+    description: Detect and cool a standard temperature spike.
+  - id: runaway-mitigation
+    description: Handle a critical thermal runaway event safely.
+  - id: sensor-fault-tolerance
+    description: Maintain optimal temperature despite noisy sensor readings.
