@@ -47,7 +47,9 @@ def get_action(obs: Dict[str, Any]) -> str:
         )
         reasoning = response.choices[0].message.content.strip()
         print(f"[XAI-DIAGNOSTIC] {reasoning}")
-    except Exception:
+    except Exception as e:
+        print(f"[DEBUG-API-ERROR] {type(e).__name__}: {e}") 
+        
         fallback = "Cooling engaged." if actual_command == "FAN_ON" else "Temp nominal."
         print(f"[SYS-DIAGNOSTIC] {fallback}")
 
